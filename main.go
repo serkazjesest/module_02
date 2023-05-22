@@ -1,29 +1,43 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"time"
+)
 
-func contains(a []string, x string) bool {
-	for _, s := range a {
-		if s == x {
-			return true
-		}
-	}
-	return false
-}
+var startTime = time.Now()
 
-func getMax(a ...int) int {
-	max := a[0]
-	for _, dig := range a {
-		if max < dig {
-			max = dig
-		}
-	}
-	return max
+func logTime() {
+	fmt.Println(time.Since(startTime))
 }
 
 func main() {
-	fmt.Println(contains([]string{"asd", "qwe", "qwe", ""}, "q"))   // false
-	fmt.Println(contains([]string{"asd", "qwe", "qwe", ""}, "qwe")) // true
+	defer logTime()
+	in, err := os.Open("in.txt")
+	if err != nil {
+		fmt.Println("Эту обработку ошибок меня заставила делать Кашкина А.О. Файл короче не открывается.")
+		return
+	}
+	defer in.Close()
 
-	fmt.Println(getMax(1, 2, 3, -2, 0, 1241)) //1241
+	out, err := os.Create("out.txt")
+	if err != nil {
+		fmt.Println("Эту обработку ошибок меня заставила делать Кашкина А.О. Файл короче не создаётся.")
+		return
+	}
+	defer out.Close()
+
+	s := bufio.NewScanner(in)
+	count := 0
+	bytes := 0
+	for s.Scan() {
+		count++
+		strForWrite := strconv.Itoa(count) + ". " + s.Text() + "\n"
+		bytes = bytes + len(strForWrite)
+		out.WriteString(strForWrite)
+	}
+	defer fmt.Print("Количество строк записанных в файл:", count, "\n", "Количество байт записанных в файл:", bytes, "\n")
 }
