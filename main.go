@@ -1,67 +1,29 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
-func readersWithPublication(m map[string]map[string][]string) {
-	countOfReaders := 0
-	for k1 := range m {
-		for _, v2 := range m[k1] {
-			if len(v2) != 0 {
-				countOfReaders++
-				break
-			}
+func contains(a []string, x string) bool {
+	for _, s := range a {
+		if s == x {
+			return true
 		}
 	}
-	fmt.Println("Общее число читателей с изданиями на руках:", countOfReaders)
+	return false
 }
 
-func valueOfPublication(m map[string]map[string][]string) {
-	countOfPublication := 0
-	iter := 0
-	for k1 := range m {
-		for _, v2 := range m[k1] {
-			iter++
-			countOfPublication += len(v2)
-			if iter%2 == 0 && iter != 0 {
-				fmt.Println("У читателя", k1, "изданий на руках:", countOfPublication)
-				countOfPublication = 0
-			}
+func getMax(a ...int) int {
+	max := a[0]
+	for _, dig := range a {
+		if max < dig {
+			max = dig
 		}
 	}
+	return max
 }
 
 func main() {
-	m := map[string]map[string][]string{}
+	fmt.Println(contains([]string{"asd", "qwe", "qwe", ""}, "q"))   // false
+	fmt.Println(contains([]string{"asd", "qwe", "qwe", ""}, "qwe")) // true
 
-	m["anastasia"] = map[string][]string{
-		"books":      {"mumu", "pushkin"},
-		"periodical": {"vokrugsveta", "gazeta"},
-	}
-
-	m["sergey"] = map[string][]string{
-		"books":      {"yama", "shatuny"},
-		"periodical": {"rybalka", "playboy"},
-	}
-
-	m["gitler"] = map[string][]string{
-		"books":      {},
-		"periodical": {},
-	}
-
-	m["stalin"] = map[string][]string{
-		"books":      {"bible"},
-		"periodical": {},
-	}
-
-	readersWithPublication(m) // 3
-
-	valueOfPublication(m)
-
-	/*У читателя gitler изданий на руках: 0
-	У читателя stalin изданий на руках: 1
-	У читателя anastasia изданий на руках: 4
-	У читателя sergey изданий на руках: 4*/
-
+	fmt.Println(getMax(1, 2, 3, -2, 0, 1241)) //1241
 }
