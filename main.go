@@ -3,70 +3,40 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
-	"strings"
 )
 
 func main() {
+	count, err := readerCountLines()
+	if err != nil {
+		fmt.Printf("error: %s", err)
+	}
+	fmt.Printf("Total strings: %d", count)
+}
+
+func readerCountLines() (count int, err error) {
+	count = 0
+
 	in, err := os.Open("in.txt")
 	if err != nil {
-		fmt.Println(err)
-		return
+		return count, fmt.Errorf("can't open file: %s", err)
 	}
 	defer in.Close()
 
-	out, err := os.Create("out.txt")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer out.Close()
+	reader := bufio.NewReader(in)
 
-	defer func() {
-		if panicErr := recover(); panicErr != nil {
-			switch panicErr {
-			case "empty field":
-				out, err := os.Open("out.txt")
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				defer out.Close()
-
-				s := bufio.NewScanner(out)
-				count := 0
-
-				for s.Scan() {
-					count++
-					fmt.Println(s.Text())
-				}
-				fmt.Println(fmt.Errorf("parse error: empty field on string %d", count))
-
-			default:
-				panic("critical")
-			}
+	for {
+		count++
+		_, err = reader.ReadString(byte('\n'))
+		if err != io.EOF && err != nil {
+			err = fmt.Errorf("cant'read line %v: %s", count, err)
+			break
 		}
-	}()
-
-	s := bufio.NewScanner(in)
-
-	line := 0
-	isEmpty := false
-	for s.Scan() {
-		line++
-		workStr := s.Text()
-		workSlice := strings.SplitN(workStr, "|", 3)
-		for _, s := range workSlice {
-			if s == "" {
-				isEmpty = true
-			}
-		}
-		if !isEmpty {
-			workStr = fmt.Sprintf("Row: %d\nName: %s\nAddress: %s\nCity: %s\n\n\n", line, workSlice[0], workSlice[1], workSlice[2])
-			out.WriteString(workStr)
-
-		} else {
-			panic("empty field")
+		if err == io.EOF {
+			err = nil
+			break
 		}
 	}
+	return count, err
 }
